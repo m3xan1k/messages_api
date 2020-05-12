@@ -10,7 +10,7 @@ class Contact(models.Model):
 
 
 class Message(models.Model):
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='messages')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='messages', null=True)
     chat = models.ForeignKey('Chat', on_delete=models.CASCADE, related_name='messages')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
