@@ -1,9 +1,18 @@
+from urllib.parse import urljoin
+
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.shortcuts import reverse
+from django.http import HttpResponse
+from django.contrib import auth
+
 from chats.models import Chat, Message
+from chats.views import ContactsView
 
 
 class TestChatsModels(TestCase):
+
+    CONTACTS_URL = reverse(ContactsView.name)
 
     @classmethod
     def setUpClass(cls):
@@ -51,5 +60,20 @@ class TestChatsModels(TestCase):
         self.assertEqual(chats[1].members.count(), 2)
         self.assertEqual(chats[0].messages.count(), 2)
         self.assertEqual(chats[1].messages.count(), 2)
-        self.assertEqual(chats[0].messages.all()[0].author.username, users[0].username)
-        self.assertEqual(chats[1].messages.all()[0].author.username, users[2].username)
+        self.assertEqual(chats[0].messages.all()[0].author.username,
+                         users[0].username)
+        self.assertEqual(chats[1].messages.all()[0].author.username,
+                         users[2].username)
+
+    def test_add_contact_unauthorized(self):
+        response: HttpResponse = self.client.post(urljoin(self.CONTACTS_URL,
+                                                          str(1)))
+        self.assertEqual(response.status_code, 403)
+
+    def test_add_contact_correct(self):
+        self.client.login(username='username1', password='password')
+        response: HttpResponse = self.client.post(urljoin(self.CONTACTS_URL,
+                                                          str(1)))
+        self.assertEqual(response.status_code, 201)
+        user: User = auth.get_user(self.client)
+        self.assertEqual(user.contacts.count(), 1)

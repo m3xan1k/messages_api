@@ -1,3 +1,11 @@
-from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.request import Request
+from rest_framework.views import APIView
 
-# Create your views here.
+
+class ContactsView(APIView):
+
+    name = 'contacts'
+
+    def post(self, request: Request, id: str) -> Response:
+        pass
